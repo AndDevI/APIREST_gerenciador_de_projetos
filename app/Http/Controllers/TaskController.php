@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TaskRequest;
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
 
@@ -17,18 +19,9 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, $projectId) {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:pending,in-progress,completed',
-            'due_date' => 'nullable|date'
-        ]);
-
-        $task = new Task($request->all());
-        $task->project_id = $projectId;
-        $task->save();
-
-        return $task;
+    public function store(TaskRequest $request, Project $project) {
+        $task = $project->tasks()->create($request->validated());
+        return response()->json($task, 201);
     }
 
     /**
@@ -41,11 +34,9 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $projectId, $taskId) {
-        $task = Task::where('project_id', $projectId)->findOrFail($taskId);
-        $task->update($request->all());
-
-        return $task;
+    public function update(TaskRequest $request, Project $project, Task $task) {
+        $task->update($request->validated());
+        return response()->json($task);
     }
 
     /**
