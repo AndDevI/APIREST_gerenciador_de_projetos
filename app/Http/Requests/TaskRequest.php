@@ -26,7 +26,6 @@ class TaskRequest extends FormRequest
             'title' => 'required|string|max:255',
             'status' => 'required|in:pending,in-progress,completed',
             'due_date' => 'required|date',
-            'project_id' => 'required|exists:projects,id'
         ];
     }
     

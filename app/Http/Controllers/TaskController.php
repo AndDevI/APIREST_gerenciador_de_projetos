@@ -2,48 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TaskService;
 use App\Http\Requests\TaskRequest;
 use App\Models\Project;
-use App\Models\Task;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index($projectId) {
-        return Task::where('project_id', $projectId)->get();
+    protected $taskService;
+
+    public function __construct(TaskService $taskService) {
+        $this->taskService = $taskService;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(TaskRequest $request, Project $project) {
-        $task = $project->tasks()->create($request->validated());
+    public function index() {
+        return response()->json($this->taskService->getAllTasks());
+    }
+
+    public function store(Project $project, TaskRequest $request) {
+        $taskData = $request->validated();
+        $taskData['project_id'] = $project->id; 
+        
+        $task = $this->taskService->createTask($taskData);
         return response()->json($task, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($projectId, $taskId) {
-        return Task::where('project_id', $projectId)->findOrFail($taskId);
+
+    public function show($id) {
+        return response()->json($this->taskService->getTaskById($id));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(TaskRequest $request, Project $project, Task $task) {
-        $task->update($request->validated());
+    public function update(TaskRequest $request, $id) {
+        $task = $this->taskService->updateTask($id, $request->validated());
         return response()->json($task);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($projectId, $taskId) {
-        Task::where('project_id', $projectId)->findOrFail($taskId)->delete();
-        return response()->noContent();
+    public function destroy($id) {
+        $this->taskService->deleteTask($id);
+        return response()->json(null, 204);
     }
 }

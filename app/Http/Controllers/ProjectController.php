@@ -2,47 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ProjectService;
 use App\Http\Requests\ProjectRequest;
-use App\Models\Project;
-use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index() {
-        return Project::all();
+    protected $projectService;
+
+    public function __construct(ProjectService $projectService) {
+        $this->projectService = $projectService;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function index() {
+        return response()->json($this->projectService->getAllProjects());
+    }
+
     public function store(ProjectRequest $request) {
-        $project = Project::create($request->validated());
+        $project = $this->projectService->createProject($request->validated());
         return response()->json($project, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id) {
-        return Project::findOrFail($id);
+    public function show($id) {
+        return response()->json($this->projectService->getProjectById($id));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(ProjectRequest $request, Project $project) {
-        $project->update($request->validated());
+    public function update(ProjectRequest $request, $id) {
+        $project = $this->projectService->updateProject($id, $request->validated());
         return response()->json($project);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id) {
-        Project::destroy($id);
-        return response()->noContent();
+    public function destroy($id) {
+        $this->projectService->deleteProject($id);
+        return response()->json(null, 204);
     }
 }
