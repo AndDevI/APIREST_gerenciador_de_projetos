@@ -9,7 +9,7 @@
 
         <title>Gerenciador de Projetos</title>
     </head>
-    <body>
-        <h1 class="text-blue-700">Teste</h1>
+    <body class="flex items-center justify-center h-screen">
+        <h1 class="text-blue-700 font-bold text-5xl animate-bounce">API - Gerenciador de Projetos</h1>
     </body>
 </html>
